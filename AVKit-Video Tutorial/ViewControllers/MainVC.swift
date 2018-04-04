@@ -145,6 +145,16 @@ class MainVC: UIViewController {
         playbackSlider.leftAnchor.constraint(equalTo: currentTimeLabel.rightAnchor, constant: 14).isActive = true
         playbackSlider.rightAnchor.constraint(equalTo: videoDurationLabel.leftAnchor, constant: -14).isActive = true
         playbackSlider.centerYAnchor.constraint(equalTo: enlargrScreenButton.centerYAnchor).isActive = true
+        playbackSlider.addTarget(self, action: #selector(sliderValueChanged), for: .valueChanged)
+    }
+    
+    @objc func sliderValueChanged(){
+        let percentage = playbackSlider.value
+        guard let duration = player.currentItem?.duration else {return}
+        let durationInSeconds = CMTimeGetSeconds(duration)
+        let seekTimeInSeconds = Float64(percentage) * durationInSeconds
+        let seekTime = CMTimeMakeWithSeconds(seekTimeInSeconds, Int32(NSEC_PER_SEC))
+        player.seek(to: seekTime)
     }
     
     @objc func hanldeEnlargeScreen(){
