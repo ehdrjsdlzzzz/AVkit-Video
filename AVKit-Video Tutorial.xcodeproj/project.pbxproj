@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3E0BE47820751C8500EC1340 /* CMTime + toDisplayString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E0BE47720751C8500EC1340 /* CMTime + toDisplayString.swift */; };
 		3E9F61262073A9E8007742A4 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E9F61252073A9E8007742A4 /* AppDelegate.swift */; };
 		3E9F612D2073A9E9007742A4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3E9F612C2073A9E9007742A4 /* Assets.xcassets */; };
 		3E9F61302073A9E9007742A4 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3E9F612E2073A9E9007742A4 /* LaunchScreen.storyboard */; };
@@ -17,6 +18,7 @@
 
 /* Begin PBXFileReference section */
 		023005F6502AE4B9156DB3B5 /* libPods-AVKit-Video Tutorial.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-AVKit-Video Tutorial.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		3E0BE47720751C8500EC1340 /* CMTime + toDisplayString.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CMTime + toDisplayString.swift"; sourceTree = "<group>"; };
 		3E9F61222073A9E8007742A4 /* AVKit-Video Tutorial.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "AVKit-Video Tutorial.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3E9F61252073A9E8007742A4 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		3E9F612C2073A9E9007742A4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -48,6 +50,14 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		3E0BE47620751BA400EC1340 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				3E0BE47720751C8500EC1340 /* CMTime + toDisplayString.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
 		3E9F61192073A9E8007742A4 = {
 			isa = PBXGroup;
 			children = (
@@ -69,6 +79,7 @@
 		3E9F61242073A9E8007742A4 /* AVKit-Video Tutorial */ = {
 			isa = PBXGroup;
 			children = (
+				3E0BE47620751BA400EC1340 /* Extensions */,
 				3E9F61372073A9FC007742A4 /* ViewControllers */,
 				3E9F61252073A9E8007742A4 /* AppDelegate.swift */,
 				3E9F612C2073A9E9007742A4 /* Assets.xcassets */,
@@ -191,6 +202,7 @@
 			files = (
 				3E9F61262073A9E8007742A4 /* AppDelegate.swift in Sources */,
 				3E9F613A2073AA0D007742A4 /* MainVC.swift in Sources */,
+				3E0BE47820751C8500EC1340 /* CMTime + toDisplayString.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
