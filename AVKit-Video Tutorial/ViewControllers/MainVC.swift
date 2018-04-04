@@ -18,17 +18,10 @@ class MainVC: UIViewController {
         return player
     }()
     
-    var containerView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .black
-        return view
-    }()
-
     var playPauseButton:UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setImage(#imageLiteral(resourceName: "icon_play"), for: .normal)
+        button.setImage(#imageLiteral(resourceName: "icons-play"), for: .normal)
         return button
     }()
     
@@ -39,10 +32,17 @@ class MainVC: UIViewController {
         return view
     }()
     
+    var enlargrScreenButton:UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setImage(#imageLiteral(resourceName: "icons-full_screen"), for: .normal)
+        return button
+    }()
+    
     var playerLayer:AVPlayerLayer!
+    var isLandscapeMode:Bool = false
     override func viewDidLoad() {
         super.viewDidLoad()
-        print("viewDidLoad()")
         setupVideoPlayerContainerView()
         observePlayer()
     }
@@ -54,16 +54,21 @@ class MainVC: UIViewController {
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        print("viewDidLayoutSubviews()")
         playerLayer.frame = containerView.frame
-        
     }
     
     fileprivate func observePlayer(){
         let time = CMTime(value: 1, timescale: 10)
         let times = [NSValue.init(time: time)]
         player.addBoundaryTimeObserver(forTimes: times, queue: .main) {
-            self.playPauseButton.setImage(#imageLiteral(resourceName: "icon_pause"), for: .normal)
+            self.playPauseButton.setImage(#imageLiteral(resourceName: "icons-pause"), for: .normal)
+            Timer.scheduledTimer(withTimeInterval: 3, repeats: false, block: { (_) in
+                UIView.animate(withDuration: 1.5, animations: {
+                    if self.playBackControlView.alpha == 1 {
+                        self.playBackControlView.alpha = 0
+                    }
+                })
+            })
         }
     }
     
@@ -71,12 +76,6 @@ class MainVC: UIViewController {
         setupPlayerItem()
         setupPlayerLayer()
         containerView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleVideoViewTap)))
-        self.view.addSubview(containerView)
-        containerView.leftAnchor.constraint(equalTo: self.view.leftAnchor).isActive = true
-        containerView.rightAnchor.constraint(equalTo: self.view.rightAnchor).isActive = true
-        containerView.topAnchor.constraint(equalTo: self.view.topAnchor).isActive = true
-        containerView.heightAnchor.constraint(equalToConstant: 300).isActive = true
-        
         setupPlayBackControlView()
     }
     
@@ -88,14 +87,57 @@ class MainVC: UIViewController {
         playBackControlView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor).isActive = true
         
         playBackControlView.addSubview(playPauseButton)
-        playPauseButton.widthAnchor.constraint(equalToConstant: 40).isActive = true
-        playPauseButton.heightAnchor.constraint(equalToConstant: 40).isActive = true
+        playPauseButton.widthAnchor.constraint(equalToConstant: 100).isActive = true
+        playPauseButton.heightAnchor.constraint(equalToConstant: 100).isActive = true
         playPauseButton.centerXAnchor.constraint(equalTo: playBackControlView.centerXAnchor).isActive = true
         playPauseButton.centerYAnchor.constraint(equalTo: playBackControlView.centerYAnchor).isActive = true
+        playPauseButton.addTarget(self, action: #selector(handlePlayPauseButton), for: .touchUpInside)
+        
+        playBackControlView.addSubview(enlargrScreenButton)
+        enlargrScreenButton.widthAnchor.constraint(equalToConstant: 60).isActive = true
+        enlargrScreenButton.heightAnchor.constraint(equalToConstant: 60).isActive = true
+        enlargrScreenButton.rightAnchor.constraint(equalTo: playBackControlView.rightAnchor, constant: 4).isActive = true
+        enlargrScreenButton.bottomAnchor.constraint(equalTo: playBackControlView.bottomAnchor, constant: 4).isActive = true
+        enlargrScreenButton.addTarget(self, action: #selector(hanldeEnlargeScreen), for: .touchUpInside)
+        
+        let playbackSlider = UISlider()
+        playbackSlider.minimumTrackTintColor = .darkGray
+        playbackSlider.setThumbImage(#imageLiteral(resourceName: "icons-slider-thumb"), for: .normal)
+        playBackControlView.addSubview(playbackSlider)
+        playbackSlider.translatesAutoresizingMaskIntoConstraints = false
+        playbackSlider.leftAnchor.constraint(equalTo: playBackControlView.leftAnchor, constant: 4).isActive = true
+        playbackSlider.rightAnchor.constraint(equalTo: enlargrScreenButton.leftAnchor, constant: 2).isActive = true
+        playbackSlider.centerYAnchor.constraint(equalTo: enlargrScreenButton.centerYAnchor).isActive = true
+    }
+    
+    @objc func hanldeEnlargeScreen(){
+        let value:Int!
+        if isLandscapeMode {
+             value = UIInterfaceOrientation.portrait.rawValue
+            isLandscapeMode = false
+        }else {
+            value = UIInterfaceOrientation.landscapeRight.rawValue
+            isLandscapeMode = true
+        }
+        UIDevice.current.setValue(value, forKey: "orientation")
     }
     
     @objc func handleVideoViewTap(){
-        
+        UIView.animate(withDuration: 0.5, animations: {
+            if self.playBackControlView.alpha == 0 {
+                self.playBackControlView.alpha = 1
+            }else {
+                self.playBackControlView.alpha = 0
+            }
+        }) { (_) in
+            Timer.scheduledTimer(withTimeInterval: 3, repeats: false, block: { (_) in
+                UIView.animate(withDuration: 1.5, animations: {
+                    if self.playBackControlView.alpha == 1 {
+                        self.playBackControlView.alpha = 0
+                    }
+                })
+            })
+        }
     }
     
     fileprivate func setupPlayerLayer(){
@@ -112,10 +154,10 @@ class MainVC: UIViewController {
     @objc fileprivate func handlePlayPauseButton(){
         if player.timeControlStatus == .playing {
             player.pause()
-            playPauseButton.setImage(#imageLiteral(resourceName: "icon_play"), for: .normal)
+            playPauseButton.setImage(#imageLiteral(resourceName: "icons-play"), for: .normal)
         }else if player.timeControlStatus == .paused {
             player.play()
-            playPauseButton.setImage(#imageLiteral(resourceName: "icon_pause"), for: .normal)
+            playPauseButton.setImage(#imageLiteral(resourceName: "icons-pause"), for: .normal)
         }
     }
 }
