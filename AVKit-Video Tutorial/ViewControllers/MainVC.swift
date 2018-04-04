@@ -12,6 +12,7 @@ import AVKit
 
 class MainVC: UIViewController {
     
+    @IBOutlet weak var containerView: UIView!
     var player:AVPlayer = {
         let player = AVPlayer()
         player.automaticallyWaitsToMinimizeStalling = false
