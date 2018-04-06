@@ -9,10 +9,16 @@
 import UIKit
 import Alamofire
 import AVKit
+import MediaPlayer
 
 class MainVC: UIViewController {
     
-    @IBOutlet weak var containerView: UIView!
+    //MARK:- Outlets
+    @IBOutlet weak var containerView: UIView! {
+        didSet{
+            containerView.isUserInteractionEnabled = true
+        }
+    }
     var player:AVPlayer = {
         let player = AVPlayer()
         player.automaticallyWaitsToMinimizeStalling = false
@@ -47,6 +53,7 @@ class MainVC: UIViewController {
     var playBackControlView:UIView = {
         let view = UIView()
         view.backgroundColor = .clear
+        view.isUserInteractionEnabled = true
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -67,13 +74,42 @@ class MainVC: UIViewController {
         return slider
     }()
     
+    var volumeIndicatorView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .green
+        view.alpha = 0
+        return view
+    }()
+    
+    var brightnessIndicatorView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .green
+        view.alpha = 0
+        return view
+    }()
+    
+    var systemVolumeView:MPVolumeView = {
+        let volumeView = MPVolumeView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        volumeView.isHidden = true
+        return volumeView
+    }()
+    //MARK:- Properties
     var playerLayer:AVPlayerLayer!
     var isLandscapeMode:Bool = false
+    var isVolumeChanging:Bool = false
+    var isBrightnessChanging:Bool = false
+    var volumeIndicatorViewHeightConstraint:NSLayoutConstraint!
+    var brightnessIndicatorViewHeightConstraint:NSLayoutConstraint!
+    var currentOutputVolume:Float!
+    //MARK:- Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
         setupVideoPlayerContainerView()
         observePlayer()
         observePlayerCurrentTime()
+        setupGesture()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -85,26 +121,9 @@ class MainVC: UIViewController {
         super.viewDidLayoutSubviews()
         playerLayer.frame = containerView.frame
     }
-    
-    fileprivate func observePlayer(){
-        let time = CMTimeMake(1, 10)
-        let times = [NSValue.init(time: time)]
-        player.addBoundaryTimeObserver(forTimes: times, queue: .main) { [weak self] in
-            self?.playPauseButton.setImage(#imageLiteral(resourceName: "icons-pause"), for: .normal)
-        }
-    }
-    
-    fileprivate func observePlayerCurrentTime(){
-        let timeInterval = CMTimeMake(1, 2)
-        player.addPeriodicTimeObserver(forInterval: timeInterval, queue: .main) { [weak self] (time) in
-            self?.currentTimeLabel.text = time.toDisplayString()
-            if let durationTime = self?.player.currentItem?.duration, self?.player.currentItem?.status == .readyToPlay{
-                self?.videoDurationLabel.text = durationTime.toDisplayString()
-                self?.playbackSlider.value = Float(CMTimeGetSeconds(time)) / Float(CMTimeGetSeconds(durationTime))
-            }
-        }
-    }
-    
+}
+//MARK:- Setup View
+extension MainVC {
     fileprivate func setupVideoPlayerContainerView(){
         setupPlayerItem()
         setupPlayerLayer()
@@ -112,6 +131,7 @@ class MainVC: UIViewController {
     }
     
     fileprivate func setupPlayBackControlView(){
+        self.view.addSubview(systemVolumeView)
         containerView.addSubview(playBackControlView)
         playBackControlView.leftAnchor.constraint(equalTo: containerView.leftAnchor).isActive = true
         playBackControlView.rightAnchor.constraint(equalTo: containerView.rightAnchor).isActive = true
@@ -132,7 +152,7 @@ class MainVC: UIViewController {
         playBackControlView.addSubview(currentTimeLabel)
         currentTimeLabel.leftAnchor.constraint(equalTo: playBackControlView.leftAnchor, constant: 4).isActive = true
         currentTimeLabel.centerYAnchor.constraint(equalTo: enlargrScreenButton.centerYAnchor).isActive = true
-
+        
         playBackControlView.addSubview(playPauseButton)
         playPauseButton.widthAnchor.constraint(equalToConstant: 100).isActive = true
         playPauseButton.heightAnchor.constraint(equalToConstant: 100).isActive = true
@@ -140,14 +160,62 @@ class MainVC: UIViewController {
         playPauseButton.centerYAnchor.constraint(equalTo: playBackControlView.centerYAnchor).isActive = true
         playPauseButton.addTarget(self, action: #selector(handlePlayPauseButton), for: .touchUpInside)
         
-        
         playBackControlView.addSubview(playbackSlider)
         playbackSlider.leftAnchor.constraint(equalTo: currentTimeLabel.rightAnchor, constant: 14).isActive = true
         playbackSlider.rightAnchor.constraint(equalTo: videoDurationLabel.leftAnchor, constant: -14).isActive = true
         playbackSlider.centerYAnchor.constraint(equalTo: enlargrScreenButton.centerYAnchor).isActive = true
         playbackSlider.addTarget(self, action: #selector(sliderValueChanged), for: .valueChanged)
+        
+        playBackControlView.addSubview(volumeIndicatorView)
+        volumeIndicatorView.rightAnchor.constraint(equalTo: playBackControlView.rightAnchor).isActive = true
+        volumeIndicatorView.bottomAnchor.constraint(equalTo: playBackControlView.bottomAnchor).isActive = true
+        volumeIndicatorView.widthAnchor.constraint(equalTo: playBackControlView.widthAnchor, multiplier: 0.5).isActive = true
+        currentOutputVolume = AVAudioSession.sharedInstance().outputVolume
+        let volumeHeightConstant = self.containerView.frame.height * CGFloat(currentOutputVolume)
+        volumeIndicatorViewHeightConstraint = volumeIndicatorView.heightAnchor.constraint(equalToConstant: volumeHeightConstant)
+        volumeIndicatorViewHeightConstraint.isActive = true
+        
+        playBackControlView.addSubview(brightnessIndicatorView)
+        brightnessIndicatorView.leftAnchor.constraint(equalTo: playBackControlView.leftAnchor).isActive = true
+        brightnessIndicatorView.topAnchor.constraint(equalTo: playBackControlView.topAnchor).isActive = true
+        brightnessIndicatorView.widthAnchor.constraint(equalTo: playBackControlView.widthAnchor, multiplier: 0.5).isActive = true
+        brightnessIndicatorViewHeightConstraint = brightnessIndicatorView.heightAnchor.constraint(equalToConstant: 0)
+        brightnessIndicatorViewHeightConstraint.isActive = true
+    }
+}
+//MARK:- Setup & Observce AVPlayer
+extension MainVC {
+    fileprivate func observePlayer(){
+        let time = CMTimeMake(1, 10)
+        let times = [NSValue.init(time: time)]
+        player.addBoundaryTimeObserver(forTimes: times, queue: .main) { [weak self] in
+            self?.playPauseButton.setImage(#imageLiteral(resourceName: "icons-pause"), for: .normal)
+        }
     }
     
+    fileprivate func observePlayerCurrentTime(){
+        let timeInterval = CMTimeMake(1, 2)
+        player.addPeriodicTimeObserver(forInterval: timeInterval, queue: .main) { [weak self] (time) in
+            self?.currentTimeLabel.text = time.toDisplayString()
+            if let durationTime = self?.player.currentItem?.duration, self?.player.currentItem?.status == .readyToPlay{
+                self?.videoDurationLabel.text = durationTime.toDisplayString()
+                self?.playbackSlider.value = Float(CMTimeGetSeconds(time)) / Float(CMTimeGetSeconds(durationTime))
+            }
+        }
+    }
+    fileprivate func setupPlayerLayer(){
+        playerLayer = AVPlayerLayer(player: player)
+        playerLayer.videoGravity = .resize
+        containerView.layer.addSublayer(playerLayer)
+    }
+    fileprivate func setupPlayerItem(){
+        guard let videoUrl = URL(string: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4") else {return}
+        let item = AVPlayerItem(url: videoUrl)
+        player.replaceCurrentItem(with: item)
+    }
+}
+//MARK:- Handler
+extension MainVC {
     @objc func sliderValueChanged(){
         let percentage = playbackSlider.value
         guard let duration = player.currentItem?.duration else {return}
@@ -156,7 +224,6 @@ class MainVC: UIViewController {
         let seekTime = CMTimeMakeWithSeconds(seekTimeInSeconds, Int32(NSEC_PER_SEC))
         player.seek(to: seekTime)
     }
-    
     @objc func hanldeEnlargeScreen(){
         let value:Int!
         if isLandscapeMode {
@@ -168,18 +235,6 @@ class MainVC: UIViewController {
         }
         UIDevice.current.setValue(value, forKey: "orientation")
     }
-    
-    fileprivate func setupPlayerLayer(){
-        playerLayer = AVPlayerLayer(player: player)
-        playerLayer.videoGravity = .resize
-        containerView.layer.addSublayer(playerLayer)
-    }
-    fileprivate func setupPlayerItem(){
-        guard let videoUrl = URL(string: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4") else {return}
-        let item = AVPlayerItem(url: videoUrl)
-        player.replaceCurrentItem(with: item)
-    }
-    
     @objc fileprivate func handlePlayPauseButton(){
         if player.timeControlStatus == .playing {
             player.pause()

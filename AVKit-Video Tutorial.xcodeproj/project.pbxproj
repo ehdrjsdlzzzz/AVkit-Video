@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		3E0BE47820751C8500EC1340 /* CMTime + toDisplayString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E0BE47720751C8500EC1340 /* CMTime + toDisplayString.swift */; };
+		3E2562862077BE6400241046 /* MainVC + Gesture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E2562852077BE6400241046 /* MainVC + Gesture.swift */; };
 		3E9F61262073A9E8007742A4 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E9F61252073A9E8007742A4 /* AppDelegate.swift */; };
 		3E9F612D2073A9E9007742A4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3E9F612C2073A9E9007742A4 /* Assets.xcassets */; };
 		3E9F61302073A9E9007742A4 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3E9F612E2073A9E9007742A4 /* LaunchScreen.storyboard */; };
@@ -19,6 +20,7 @@
 /* Begin PBXFileReference section */
 		023005F6502AE4B9156DB3B5 /* libPods-AVKit-Video Tutorial.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-AVKit-Video Tutorial.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3E0BE47720751C8500EC1340 /* CMTime + toDisplayString.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CMTime + toDisplayString.swift"; sourceTree = "<group>"; };
+		3E2562852077BE6400241046 /* MainVC + Gesture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MainVC + Gesture.swift"; sourceTree = "<group>"; };
 		3E9F61222073A9E8007742A4 /* AVKit-Video Tutorial.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "AVKit-Video Tutorial.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3E9F61252073A9E8007742A4 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		3E9F612C2073A9E9007742A4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -94,6 +96,7 @@
 			children = (
 				3E9F61382073AA0D007742A4 /* MainVC.swift */,
 				3E9F61392073AA0D007742A4 /* MainVC.xib */,
+				3E2562852077BE6400241046 /* MainVC + Gesture.swift */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -201,6 +204,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3E9F61262073A9E8007742A4 /* AppDelegate.swift in Sources */,
+				3E2562862077BE6400241046 /* MainVC + Gesture.swift in Sources */,
 				3E9F613A2073AA0D007742A4 /* MainVC.swift in Sources */,
 				3E0BE47820751C8500EC1340 /* CMTime + toDisplayString.swift in Sources */,
 			);

@@ -12,12 +12,12 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-
-
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         window = UIWindow()
         window?.makeKeyAndVisible()
-        window?.rootViewController = MainVC()
+        let mainVC = MainVC()
+        window?.rootViewController = mainVC
+        NotificationCenter.default.addObserver(mainVC, selector: #selector(mainVC.volumeChanged(notification:)), name: Notification.Name("AVSystemController_SystemVolumeDidChangeNotification"), object: nil)
         return true
     }
 }
