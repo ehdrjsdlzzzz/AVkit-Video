@@ -177,9 +177,11 @@ extension MainVC {
         
         playBackControlView.addSubview(brightnessIndicatorView)
         brightnessIndicatorView.leftAnchor.constraint(equalTo: playBackControlView.leftAnchor).isActive = true
-        brightnessIndicatorView.topAnchor.constraint(equalTo: playBackControlView.topAnchor).isActive = true
+        brightnessIndicatorView.bottomAnchor.constraint(equalTo: playBackControlView.bottomAnchor).isActive = true
         brightnessIndicatorView.widthAnchor.constraint(equalTo: playBackControlView.widthAnchor, multiplier: 0.5).isActive = true
-        brightnessIndicatorViewHeightConstraint = brightnessIndicatorView.heightAnchor.constraint(equalToConstant: 0)
+        let brightness = UIScreen.main.brightness
+        let brightnessHeightConstant = self.containerView.frame.height * brightness
+        brightnessIndicatorViewHeightConstraint = brightnessIndicatorView.heightAnchor.constraint(equalToConstant: brightnessHeightConstant)
         brightnessIndicatorViewHeightConstraint.isActive = true
     }
 }
@@ -192,7 +194,6 @@ extension MainVC {
             self?.playPauseButton.setImage(#imageLiteral(resourceName: "icons-pause"), for: .normal)
         }
     }
-    
     fileprivate func observePlayerCurrentTime(){
         let timeInterval = CMTimeMake(1, 2)
         player.addPeriodicTimeObserver(forInterval: timeInterval, queue: .main) { [weak self] (time) in

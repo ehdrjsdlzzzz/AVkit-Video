@@ -10,39 +10,71 @@ import UIKit
 
 extension MainVC {
     func setupGesture(){
-        self.playBackControlView.addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(handleVolumePanGesture)))
+        self.playBackControlView.addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(handleVolumeBrightnessGesture)))
     }
-    
-    @objc func handleBrightenssGesure(gesture: UIPanGestureRecognizer){
-        
-    }
-    @objc func handleVolumePanGesture(gesture: UIPanGestureRecognizer){
+    @objc func handleVolumeBrightnessGesture(gesture: UIPanGestureRecognizer){
+        let location:CGPoint!
         if gesture.state == .began {
-            isVolumeChanging = true
+            location = gesture.location(in: containerView)
+            if location.x < self.containerView.frame.width / 2 {
+                // Brightness control
+                isBrightnessChanging = true
+                isVolumeChanging = false
+            }else{
+                // Volume control
+                isBrightnessChanging = false
+                isVolumeChanging = true
+            }
         }else if gesture.state == .changed {
             let velocity = gesture.velocity(in: containerView)
-            if velocity.y < 0 {
-                NotificationCenter.default.post(name: Notification.Name("AVSystemController_SystemVolumeDidChangeNotification"), object: true)
-            }else if velocity.y > 0 {
-                NotificationCenter.default.post(name: Notification.Name("AVSystemController_SystemVolumeDidChangeNotification"), object: false)
+            // Volume control
+            if isVolumeChanging {
+                if velocity.y < 0 { // +
+                    NotificationCenter.default.post(name: Notification.Name("AVSystemController_SystemVolumeDidChangeNotification"), object: true)
+                }else if velocity.y > 0 { // -
+                    NotificationCenter.default.post(name: Notification.Name("AVSystemController_SystemVolumeDidChangeNotification"), object: false)
+                }
+                indicatorViewValueChanged(constraint: volumeIndicatorViewHeightConstraint, of: volumeIndicatorView)
             }
-            if self.volumeIndicatorViewHeightConstraint.constant > containerView.frame.height {
-                self.volumeIndicatorViewHeightConstraint.constant = containerView.frame.height
-            }else if self.volumeIndicatorViewHeightConstraint.constant < 0 {
-                self.volumeIndicatorViewHeightConstraint.constant = 0
-            }
-            
-            UIView.animate(withDuration: 0.5) {
-                self.volumeIndicatorView.alpha = 0.4
+            // Brightness control
+            if isBrightnessChanging {
+                if velocity.y < 0 { // +
+                    self.brightnessIndicatorViewHeightConstraint.constant += (3*containerView.frame.height)/self.view.frame.height
+                }else if velocity.y > 0 { // -
+                    self.brightnessIndicatorViewHeightConstraint.constant -= (3*containerView.frame.height)/self.view.frame.height
+                }
+                UIScreen.main.brightness = brightnessIndicatorViewHeightConstraint.constant / containerView.frame.height
+                indicatorViewValueChanged(constraint: brightnessIndicatorViewHeightConstraint, of: brightnessIndicatorView)
             }
         }else if gesture.state == .ended {
-            isVolumeChanging = false
-            UIView.animate(withDuration: 0.5) {
-                self.volumeIndicatorView.alpha = 0
+            if isVolumeChanging {
+                isVolumeChanging = false
+                indicatorDismissAnimation(of:volumeIndicatorView, duration: 0.5)
+            }
+            if isBrightnessChanging {
+                isBrightnessChanging = false
+                indicatorDismissAnimation(of:brightnessIndicatorView ,duration: 0.5)
             }
         }
     }
     
+    fileprivate func indicatorDismissAnimation(of indicatorView:UIView, duration: TimeInterval){
+        UIView.animate(withDuration: duration) {
+            indicatorView.alpha = 0
+        }
+    }
+    
+    fileprivate func indicatorViewValueChanged(constraint:NSLayoutConstraint, of indicatorView: UIView) {
+        if constraint.constant > containerView.frame.height {
+            constraint.constant = containerView.frame.height
+        }else if constraint.constant < 0 {
+            constraint.constant = 0
+        }
+        
+        UIView.animate(withDuration: 0.5) {
+            indicatorView.alpha = 0.4
+        }
+    }
     @objc func volumeChanged(notification: Notification){
         guard let systemVolueViewSlider = self.systemVolumeView.subviews.first as? UISlider else {return}
         if let obj = notification.object as? Bool {
@@ -57,9 +89,7 @@ extension MainVC {
             if isVolumeChanging == false {
                 self.volumeIndicatorViewHeightConstraint.constant = CGFloat(volume) * self.containerView.frame.height
                 self.volumeIndicatorView.alpha = 0.4
-                UIView.animate(withDuration: 0.7) {
-                    self.volumeIndicatorView.alpha = 0
-                }
+                indicatorDismissAnimation(of:volumeIndicatorView ,duration: 0.7)
             }
         }
     }
