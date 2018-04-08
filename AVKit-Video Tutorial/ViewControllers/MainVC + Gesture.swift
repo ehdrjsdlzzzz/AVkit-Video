@@ -20,6 +20,10 @@ extension MainVC {
                 // Brightness control
                 isBrightnessChanging = true
                 isVolumeChanging = false
+                // Set brightness when value is changed at Contol Center
+                let brightness = UIScreen.main.brightness
+                let brightnessHeightConstant = self.containerView.frame.height * brightness
+                brightnessIndicatorViewHeightConstraint.constant = brightnessHeightConstant
             }else{
                 // Volume control
                 isBrightnessChanging = false
