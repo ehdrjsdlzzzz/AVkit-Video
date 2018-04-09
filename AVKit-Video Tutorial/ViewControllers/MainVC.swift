@@ -29,6 +29,7 @@ class MainVC: UIViewController {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setImage(#imageLiteral(resourceName: "icons-play"), for: .normal)
+        button.setImage(#imageLiteral(resourceName: "icons-pause"), for: .selected)
         return button
     }()
     
@@ -103,6 +104,8 @@ class MainVC: UIViewController {
     var volumeIndicatorViewHeightConstraint:NSLayoutConstraint!
     var brightnessIndicatorViewHeightConstraint:NSLayoutConstraint!
     var currentOutputVolume:Float!
+    var panStartLocation:CGPoint!
+    var panCurrentLoaction:CGPoint!
     //MARK:- Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -171,6 +174,7 @@ extension MainVC {
         volumeIndicatorView.bottomAnchor.constraint(equalTo: playBackControlView.bottomAnchor).isActive = true
         volumeIndicatorView.widthAnchor.constraint(equalTo: playBackControlView.widthAnchor, multiplier: 0.5).isActive = true
         currentOutputVolume = AVAudioSession.sharedInstance().outputVolume
+        print("Current output volume ", currentOutputVolume)
         let volumeHeightConstant = self.containerView.frame.height * CGFloat(currentOutputVolume)
         volumeIndicatorViewHeightConstraint = volumeIndicatorView.heightAnchor.constraint(equalToConstant: volumeHeightConstant)
         volumeIndicatorViewHeightConstraint.isActive = true
@@ -191,7 +195,7 @@ extension MainVC {
         let time = CMTimeMake(1, 10)
         let times = [NSValue.init(time: time)]
         player.addBoundaryTimeObserver(forTimes: times, queue: .main) { [weak self] in
-            self?.playPauseButton.setImage(#imageLiteral(resourceName: "icons-pause"), for: .normal)
+            self?.playPauseButton.isSelected = true
         }
     }
     fileprivate func observePlayerCurrentTime(){
@@ -237,12 +241,13 @@ extension MainVC {
         UIDevice.current.setValue(value, forKey: "orientation")
     }
     @objc fileprivate func handlePlayPauseButton(){
-        if player.timeControlStatus == .playing {
-            player.pause()
-            playPauseButton.setImage(#imageLiteral(resourceName: "icons-play"), for: .normal)
-        }else if player.timeControlStatus == .paused {
+        playPauseButton.isSelected = !playPauseButton.isSelected
+        let isSelected = playPauseButton.isSelected
+        
+        if isSelected {
             player.play()
-            playPauseButton.setImage(#imageLiteral(resourceName: "icons-pause"), for: .normal)
+        }else{
+            player.pause()
         }
     }
 }
