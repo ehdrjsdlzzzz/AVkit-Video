@@ -106,6 +106,7 @@ class MainVC: UIViewController {
     var currentOutputVolume:Float!
     var panStartLocation:CGPoint!
     var panCurrentLoaction:CGPoint!
+    var panCount:Int = 0
     //MARK:- Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -174,7 +175,6 @@ extension MainVC {
         volumeIndicatorView.bottomAnchor.constraint(equalTo: playBackControlView.bottomAnchor).isActive = true
         volumeIndicatorView.widthAnchor.constraint(equalTo: playBackControlView.widthAnchor, multiplier: 0.5).isActive = true
         currentOutputVolume = AVAudioSession.sharedInstance().outputVolume
-        print("Current output volume ", currentOutputVolume)
         let volumeHeightConstant = self.containerView.frame.height * CGFloat(currentOutputVolume)
         volumeIndicatorViewHeightConstraint = volumeIndicatorView.heightAnchor.constraint(equalToConstant: volumeHeightConstant)
         volumeIndicatorViewHeightConstraint.isActive = true

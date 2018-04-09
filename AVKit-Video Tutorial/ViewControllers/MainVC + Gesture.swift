@@ -29,18 +29,23 @@ extension MainVC {
                 isVolumeChanging = true
             }
         }else if gesture.state == .changed {
+            panCount += 1
+            // % TOO MANY NOTIFICATION %
             guard let systemVolueViewSlider = self.systemVolumeView.subviews.first as? UISlider else {return}
             let velocity = gesture.velocity(in: containerView)
             panCurrentLoaction = gesture.location(in: containerView)
             // Volume control
-            if isVolumeChanging {
-                if velocity.y < 0 {
-                    systemVolueViewSlider.value += 0.015
-                }else if velocity.y > 0 {
-                    print("Volume dowon")
-                    systemVolueViewSlider.value -= 0.015
+            if panCount % 2 == 0 {
+                if isVolumeChanging {
+                    if velocity.y < 0 {
+                        systemVolueViewSlider.value += 0.02
+                    }else if velocity.y > 0 {
+                        systemVolueViewSlider.value -= 0.02
+                    }
                 }
+                panCount = 0
             }
+            
             // Brightness control
             if isBrightnessChanging {
                 if velocity.y < 0 { // +
@@ -81,7 +86,6 @@ extension MainVC {
     }
     @objc func volumeChanged(notification: Notification){
         if let volume = notification.userInfo?["AVSystemController_AudioVolumeNotificationParameter"] as? Float {
-            print("current Volume : \(volume)")
             currentOutputVolume = volume // 0.0 ~ 1.0
             self.volumeIndicatorViewHeightConstraint.constant = CGFloat(currentOutputVolume) * self.containerView.frame.height
             self.volumeIndicatorView.alpha = 0.4
