@@ -33,7 +33,6 @@ extension MainVC {
             // % TOO MANY NOTIFICATION %
             guard let systemVolueViewSlider = self.systemVolumeView.subviews.first as? UISlider else {return}
             let velocity = gesture.velocity(in: containerView)
-            panCurrentLoaction = gesture.location(in: containerView)
             // Volume control
             if panCount % 2 == 0 {
                 if isVolumeChanging {
@@ -43,19 +42,30 @@ extension MainVC {
                         systemVolueViewSlider.value -= 0.02
                     }
                 }
+                
+                if isBrightnessChanging {
+                    if velocity.y < 0 {
+                        self.brightnessIndicatorViewHeightConstraint.constant += (self.containerView.frame.height * 0.02)
+                    }else if velocity.y > 0 {
+                        self.brightnessIndicatorViewHeightConstraint.constant -= (self.containerView.frame.height * 0.02)
+                    }
+                    
+                    UIScreen.main.brightness = brightnessIndicatorViewHeightConstraint.constant / containerView.frame.height
+                    indicatorViewValueChanged(constraint: brightnessIndicatorViewHeightConstraint, of: brightnessIndicatorView)
+                }
                 panCount = 0
             }
             
-            // Brightness control
-            if isBrightnessChanging {
-                if velocity.y < 0 { // +
-                    self.brightnessIndicatorViewHeightConstraint.constant += (2*containerView.frame.height)/self.view.frame.height
-                }else if velocity.y > 0 { // -
-                    self.brightnessIndicatorViewHeightConstraint.constant -= (2*containerView.frame.height)/self.view.frame.height
-                }
-                UIScreen.main.brightness = brightnessIndicatorViewHeightConstraint.constant / containerView.frame.height
-                indicatorViewValueChanged(constraint: brightnessIndicatorViewHeightConstraint, of: brightnessIndicatorView)
-            }
+//  Brightness control
+//            if isBrightnessChanging {
+//                if velocity.y < 0 { // +
+//                    self.brightnessIndicatorViewHeightConstraint.constant += (2*containerView.frame.height)/self.view.frame.height
+//                }else if velocity.y > 0 { // -
+//                    self.brightnessIndicatorViewHeightConstraint.constant -= (2*containerView.frame.height)/self.view.frame.height
+//                }
+//                UIScreen.main.brightness = brightnessIndicatorViewHeightConstraint.constant / containerView.frame.height
+//                indicatorViewValueChanged(constraint: brightnessIndicatorViewHeightConstraint, of: brightnessIndicatorView)
+//            }
         }else if gesture.state == .ended {
             if isVolumeChanging {
                 isVolumeChanging = false
