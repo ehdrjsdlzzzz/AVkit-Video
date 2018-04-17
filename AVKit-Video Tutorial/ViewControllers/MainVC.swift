@@ -12,7 +12,6 @@ import AVKit
 import MediaPlayer
 
 class MainVC: UIViewController {
-    
     //MARK:- Outlets
     @IBOutlet weak var containerView: UIView! {
         didSet{
@@ -107,6 +106,7 @@ class MainVC: UIViewController {
     var panStartLocation:CGPoint!
     var panCurrentLoaction:CGPoint!
     var panCount:Int = 0
+    var timer:Timer?
     //MARK:- Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -114,13 +114,8 @@ class MainVC: UIViewController {
         observePlayer()
         observePlayerCurrentTime()
         setupGesture()
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
         player.play()
     }
-    
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         playerLayer.frame = containerView.frame
@@ -133,7 +128,6 @@ extension MainVC {
         setupPlayerLayer()
         setupPlayBackControlView()
     }
-    
     fileprivate func setupPlayBackControlView(){
         self.view.addSubview(systemVolumeView)
         containerView.addSubview(playBackControlView)
@@ -196,6 +190,12 @@ extension MainVC {
         let times = [NSValue.init(time: time)]
         player.addBoundaryTimeObserver(forTimes: times, queue: .main) { [weak self] in
             self?.playPauseButton.isSelected = true
+            self?.timer?.invalidate()
+            self?.timer = Timer.scheduledTimer(withTimeInterval: 2, repeats: false, block: { (_) in
+                UIView.animate(withDuration: 1.5, animations: {
+                    self?.playBackControlView.alpha = 0
+                })
+            })
         }
     }
     fileprivate func observePlayerCurrentTime(){

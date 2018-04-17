@@ -11,6 +11,20 @@ import UIKit
 extension MainVC {
     func setupGesture(){
         self.playBackControlView.addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(handleVolumeBrightnessGesture)))
+        self.containerView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleShowPlaybackControllerView)))
+    }
+    
+    @objc func handleShowPlaybackControllerView(_ gesture: UITapGestureRecognizer) {
+        UIView.animate(withDuration: 1, animations: {
+            self.playBackControlView.alpha = 1
+        }) { (_) in
+            self.timer?.invalidate()
+            self.timer = Timer.scheduledTimer(withTimeInterval: 4, repeats: false, block: { (_) in
+                UIView.animate(withDuration: 1.5, animations: {
+                    self.playBackControlView.alpha = 0
+                })
+            })
+        }
     }
     @objc func handleVolumeBrightnessGesture(gesture: UIPanGestureRecognizer){
         if gesture.state == .began {
